@@ -12,6 +12,7 @@ use App\Services\SlotService;
 
 class BookingController extends Controller
 {
+    
     public function index()
     {
         $services = Service::where('is_active', 1)->get();
