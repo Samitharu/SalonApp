@@ -1,22 +1,55 @@
-@extends('admin.layout')
+@extends('layouts.app')
 
 @section('content')
-<h2>Create Service</h2>
+
+<div class="container py-5">
+
+<h2 class="mb-4">Create Service</h2>
+
+<div class="card p-4">
 
 <form method="POST" action="{{ route('admin.services.store') }}">
-    @csrf
+@csrf
 
-    <div>
-        <label>Name</label>
-        <input type="text" name="name" required>
-    </div>
+<div class="mb-3">
+<label class="form-label">Name</label>
+<input name="name"
+       class="form-control"
+       required>
+</div>
 
-    <div>
-        <label>Price</label>
-        <input type="number" step="0.01" name="price" required>
-    </div>
+<div class="mb-3">
+<label class="form-label">Price</label>
+<input name="price"
+       class="form-control"
+       required>
+</div>
 
-    <button type="submit">Save</button>
+<div class="mb-3">
+<label class="form-label">Duration (minutes)</label>
+<input name="duration_minutes"
+       class="form-control"
+       required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Description</label>
+<textarea name="description"
+          class="form-control"></textarea>
+</div>
+
+<button class="btn btn-success">
+Create Service
+</button>
+
+<a href="{{ route('admin.services.index') }}"
+   class="btn btn-secondary ms-2">
+Cancel
+</a>
+
 </form>
+
+</div>
+</div>
 
 @endsection
