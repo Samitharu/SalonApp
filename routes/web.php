@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SettingController;
 
 /*
@@ -56,4 +57,6 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
     )->name('appointments.status');
 
     Route::get('/logout', [AuthController::class, 'logout']);
+
+    Route::resource('employees', EmployeeController::class);
 });
