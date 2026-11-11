@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Setting;
+use App\Models\Slider;
 use Database\Seeders\FalothesMenuSeeder;
+use Database\Seeders\FalothesSlidesSeeder;
 use Database\Seeders\SalonMenuSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -53,5 +55,16 @@ class FalothesMenuSeederTest extends TestCase
         $this->assertSame(1, ServiceCategory::where('slug', 'bridal')->count());
         $this->assertSame('65000.00', Service::where('slug', 'kandyan-bridal-dressing')->value('price'));
         $this->assertTrue(Service::where('slug', 'hair-cut')->exists());
+    }
+
+    public function test_homepage_slideshow_is_seeded_once_with_photos(): void
+    {
+        $this->seed(FalothesSlidesSeeder::class);
+        $this->seed(FalothesSlidesSeeder::class);
+
+        $this->assertSame(3, Slider::count());
+        Slider::all()->each(fn ($s) => Storage::disk('public')->assertExists($s->image));
+
+        $this->get('/')->assertOk()->assertSee('Time just for you')->assertSee('Your day, your look');
     }
 }
