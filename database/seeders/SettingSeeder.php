@@ -13,7 +13,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'salon_name'            => 'Negombo Saloon',
+            'salon_name'            => 'Falothes',
             'salon_tagline'         => 'Hair, skin and nail care by people who love what they do.',
             'salon_phone'           => '+94 77 000 0000',
             'salon_address'         => 'Negombo, Sri Lanka',
