@@ -41,9 +41,13 @@ return [
             'provider' => 'users',
         ],
         'admin' => [
-        'driver' => 'session',
-        'provider' => 'admins',
-    ],
+            'driver'   => 'session',
+            'provider' => 'admins',
+        ],
+        'staff' => [
+            'driver'   => 'session',
+            'provider' => 'staff',
+        ],
     ],
 
     /*
@@ -66,17 +70,16 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model'  => env('AUTH_MODEL', App\Models\User::class),
         ],
         'admins' => [
-        'driver' => 'eloquent',
-        'model' => App\Models\Admin::class,
-    ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+            'driver' => 'eloquent',
+            'model'  => App\Models\Admin::class,
+        ],
+        'staff' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\Staff::class,
+        ],
     ],
 
     /*

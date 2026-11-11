@@ -1,34 +1,24 @@
-@extends('layouts.app')
+@extends('layouts.auth')
+@section('title', 'Admin sign in')
+@section('heading', 'Admin sign in')
+@section('subheading', setting('salon_name', 'Salon') . ' management')
 
 @section('content')
-
-<div class="container py-5">
-<div class="row justify-content-center">
-<div class="col-md-4">
-
-<div class="card p-4">
-
-<h3 class="text-center mb-3">Admin Login</h3>
-
-@if(session('error'))
-<div class="alert alert-danger">{{ session('error') }}</div>
-@endif
-
-<form method="POST">
-@csrf
-
-<input name="email" class="form-control mb-3" placeholder="Email">
-<input type="password" name="password" class="form-control mb-3" placeholder="Password">
-
-<button class="btn btn-primary w-100">
-Login
-</button>
-
+<form method="POST" action="{{ url('/admin/login') }}" class="stack" novalidate>
+    @csrf
+    <div class="field">
+        <label class="label" for="email">Email</label>
+        <input class="input" type="email" id="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" maxlength="120">
+    </div>
+    <div class="field">
+        <label class="label" for="password">Password</label>
+        <div class="input-icon">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            <input class="input" type="password" id="password" name="password" required autocomplete="current-password" style="padding-right:48px;">
+            <button type="button" class="btn btn-ghost btn-icon btn-sm input-action" data-toggle-password="password" aria-label="Show password"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <label class="check"><input type="checkbox" name="remember" value="1"> Keep me signed in on this device</label>
+    <button type="submit" class="btn btn-primary btn-lg btn-block" data-loading="Signing in…">Sign in</button>
 </form>
-
-</div>
-</div>
-</div>
-</div>
-
 @endsection

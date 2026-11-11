@@ -1,160 +1,130 @@
+@php
+    $salon = setting('salon_name', 'Salon');
+    $pageTitle = trim($__env->yieldContent('title'));
+    $metaDescription = trim($__env->yieldContent('meta_description')) ?: setting('meta_description', setting('salon_tagline', 'Book your next salon appointment online.'));
+@endphp
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ setting('salon_name') }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family:Playfair+Display:wght@500;700&family:Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <style>
-        /* Background */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(120deg, #fff7f8, #fcefee);
-            color: #222;
-        }
-
-        /* Premium navbar */
-        .navbar {
-            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, .25);
-        }
-
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            color: #f8c8d8 !important;
-        }
-
-        .nav-link {
-            color: #eee !important;
-            margin-left: 15px;
-            transition: .2s;
-        }
-
-        .nav-link:hover {
-            color: #ff9db5 !important;
-        }
-
-        /* Hero */
-        .hero {
-            background: linear-gradient(135deg, #ffb6c1, #ffd6de);
-            padding: 100px 20px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 48px;
-        }
-
-        /* Cards */
-        .card {
-            background: white;
-            border: none;
-            border-radius: 22px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
-            transition: .3s;
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, #ff5f8a, #ff8fb1);
-            border: none;
-            border-radius: 30px;
-            padding: 12px 26px;
-            font-weight: 500;
-        }
-
-        .btn-primary:hover {
-            opacity: .9;
-        }
-
-        /* Inputs */
-        input,
-        select {
-            border-radius: 14px !important;
-            border: 1px solid #eee !important;
-            padding: 12px !important;
-        }
-
-        /* Footer */
-        footer {
-            background: #111;
-            color: #eee;
-            padding: 25px;
-            text-align: center;
-            margin-top: 60px;
-        }
-
-        #app-content {
-            transition: opacity .25s;
-        }
-    </style>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.head', ['title' => $pageTitle ? $pageTitle . ' · ' . $salon : $salon])
+    <meta name="description" content="{{ $metaDescription }}">
+    <meta property="og:title" content="{{ $pageTitle ?: $salon }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    @stack('head')
 </head>
+<body class="site">
+<a class="skip-link" href="#main">Skip to content</a>
 
-<body>
+<header class="site-header">
+    <div class="container">
+        <a class="brand brand-wordmark" href="{{ route('home') }}" aria-label="{{ $salon }} home">
+            <span class="brand-name">{{ $salon }}</span>
+        </a>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand spa-link" href="/">
-                {{ setting('salon_name') }}
-            </a>
+        @php $hasOffers = app(\App\Services\OfferPricing::class)->showing()->isNotEmpty(); @endphp
+        <nav class="site-nav" aria-label="Main">
+            <a class="nav-link" href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a>
+            <a class="nav-link" href="{{ route('services') }}" @if(request()->routeIs('services', 'services.category')) aria-current="page" @endif>Services</a>
+            @if($hasOffers)<a class="nav-link" href="{{ route('offers') }}" @if(request()->routeIs('offers')) aria-current="page" @endif>Offers</a>@endif
+            <a class="nav-link" href="{{ route('gallery') }}" @if(request()->routeIs('gallery')) aria-current="page" @endif>Gallery</a>
+            <a class="nav-link" href="{{ route('booking.manage') }}" @if(request()->routeIs('booking.manage', 'booking.lookup', 'booking.cancel', 'booking.edit')) aria-current="page" @endif>My booking</a>
+            <a class="nav-link" href="{{ route('home') }}#visit">Contact</a>
+        </nav>
 
-            <div class="navbar-nav ms-auto">
+        <div class="header-actions">
+            @include('partials.theme-toggle')
+            <a href="{{ route('booking') }}" class="btn btn-primary hide-mobile">Book now</a>
+            <button type="button" class="btn btn-ghost btn-icon nav-toggle" data-toggle-target="mobile-nav" aria-controls="mobile-nav" aria-expanded="false" aria-label="Open menu">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</header>
 
-                <a class="nav-link spa-link" href="/">Home</a>
-                <a class="nav-link spa-link" href="/services">Services</a>
-                <a class="nav-link spa-link" href="/booking">Book Now</a>
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
+    <a class="nav-link" href="{{ route('home') }}">Home <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <a class="nav-link" href="{{ route('services') }}">Services &amp; prices <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    @if($hasOffers)<a class="nav-link" href="{{ route('offers') }}">Offers <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>@endif
+    <a class="nav-link" href="{{ route('gallery') }}">Gallery <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <a class="nav-link" href="{{ route('booking.manage') }}">My booking <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <a class="nav-link" href="{{ route('review.create') }}">Rate your visit <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <a class="nav-link" href="{{ route('home') }}#visit">Contact <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <a href="{{ route('booking') }}" class="btn btn-primary btn-block btn-lg">Book appointment</a>
+</nav>
 
-                @auth('admin')
-                <div class="nav-item dropdown ms-3">
-                    <a class="nav-link dropdown-toggle"
-                        data-bs-toggle="dropdown"
-                        href="#">
-                        {{ auth('admin')->user()->name }}
-                    </a>
+<main id="main">
+    @yield('content')
+</main>
 
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item spa-link" href="/admin">
-                            Dashboard
-                        </a>
-                        <a class="dropdown-item" href="/admin/logout">
-                            Logout
-                        </a>
-                    </div>
-                </div>
-                @else
-                <a class="nav-link ms-3" href="/admin/login">
-                    Admin Login
+@unless(View::hasSection('hide_footer'))
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <a class="brand brand-wordmark" href="{{ route('home') }}">
+                    <span class="brand-name">{{ $salon }}</span>
                 </a>
-                @endauth
-
+                @if(setting('salon_tagline'))
+                    <p class="footer-about">{{ setting('salon_tagline') }}</p>
+                @endif
+                <div class="footer-social">
+                    @if(setting('instagram_url'))
+                        <a class="btn btn-icon btn-sm" href="{{ setting('instagram_url') }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    @endif
+                    @if(setting('facebook_url'))
+                        <a class="btn btn-icon btn-sm" href="{{ setting('facebook_url') }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    @endif
+                    @if(setting('whatsapp'))
+                        <a class="btn btn-icon btn-sm" href="https://wa.me/{{ setting('whatsapp') }}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                    @endif
+                </div>
+            </div>
+            <div>
+                <div class="footer-title">Explore</div>
+                <ul class="footer-links">
+                    <li><a href="{{ route('services') }}">Services &amp; prices</a></li>
+                    @if($hasOffers)<li><a href="{{ route('offers') }}">Offers</a></li>@endif
+                    <li><a href="{{ route('gallery') }}">Gallery</a></li>
+                    <li><a href="{{ route('booking') }}">Book an appointment</a></li>
+                    <li><a href="{{ route('booking.manage') }}">Manage my booking</a></li>
+                    <li><a href="{{ route('review.create') }}">Rate your visit</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">Team</div>
+                <ul class="footer-links">
+                    <li><a href="{{ route('stylist.login') }}">Stylist portal</a></li>
+                    <li><a href="{{ route('admin.login') }}">Admin</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">Contact</div>
+                <ul class="footer-links">
+                    @if(setting('salon_phone'))
+                        <li><a href="tel:{{ preg_replace('/[^0-9+]/', '', setting('salon_phone')) }}"><i class="fa-solid fa-phone icon-muted" aria-hidden="true"></i>&nbsp; {{ setting('salon_phone') }}</a></li>
+                    @endif
+                    @if(setting('salon_email'))
+                        <li><a href="mailto:{{ setting('salon_email') }}"><i class="fa-solid fa-envelope icon-muted" aria-hidden="true"></i>&nbsp; {{ setting('salon_email') }}</a></li>
+                    @endif
+                    @if(setting('salon_address'))
+                        <li class="text-muted"><i class="fa-solid fa-location-dot icon-muted" aria-hidden="true"></i>&nbsp; {{ setting('salon_address') }}</li>
+                    @endif
+                </ul>
             </div>
         </div>
-    </nav>
+        <div class="footer-bottom">
+            <span>&copy; {{ date('Y') }} {{ $salon }}. All rights reserved.</span>
+            <span>Online booking available 24/7</span>
+        </div>
+    </div>
+</footer>
+@endunless
 
-    <main id="app-content">
-        @yield('content')
-    </main>
-
-    <footer>
-        © {{ date('Y') }} {{ setting('salon_name') }}
-    </footer>
-
-    <script src="/js/spa.js"></script>
-    <script src="/js/booking.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+@include('partials.toasts')
+<script src="{{ asset_v('js/app.js') }}" defer></script>
+@stack('scripts')
 </body>
-
 </html>

@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     protected $fillable = [
-    'name',
-    'phone',
-    'email',
-    'notes',
-];
+        'name', 'phone', 'email', 'notes',
+    ];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

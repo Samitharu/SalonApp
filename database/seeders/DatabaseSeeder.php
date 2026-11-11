@@ -2,28 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Baseline data for a fresh install. Create the first admin with:
+     *   php artisan salon:admin
      */
     public function run(): void
     {
         $this->call([
-        SettingSeeder::class,
-        BusinessHourSeeder::class,
-        StaffSeeder::class,
-    ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            SettingSeeder::class,
+            BusinessHourSeeder::class,
         ]);
+
+        if (app()->environment('local')) {
+            $this->call(StaffSeeder::class);
+        }
     }
 }

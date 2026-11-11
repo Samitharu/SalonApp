@@ -1,59 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Salon Booking System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Online booking, admin back office, stylist portal and cashier station for a hair & beauty salon.
+Laravel 12 · Blade · plain CSS (`public/css/app.css`) · vanilla JS. Light and dark themes.
 
-## About Laravel
+## Areas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| URL | Who | What |
+|---|---|---|
+| `/` `/services` | Customers | Homepage, service menu with prices |
+| `/booking` | Customers | Book: service → stylist/date/time → details → QR confirmation |
+| `/booking/manage` | Customers | Look up a booking (reference + phone) and cancel it |
+| `/admin` | Owner / manager | Dashboard, day calendar, appointments, customers, services, staff, hours, settings |
+| `/stylist/login` | Stylists | Today's jobs, scan customer QR to start, finish jobs, walk-ins |
+| `/cashier` | Front desk | Look up job number / QR, take cash or card payment, print receipt |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+composer install
+cp .env.example .env && php artisan key:generate
+# configure DB_* in .env
+php artisan migrate --seed          # settings + default opening hours
+php artisan storage:link            # needed for service/hero photos
+php artisan salon:admin             # create the first admin account
+```
 
-## Learning Laravel
+`php artisan salon:admin` can also reset an admin's password.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Admin users and permissions
+Add people in **Admin → Admin users** and tick what each may do, or start from a preset (Manager,
+Receptionist, Cashier, Stock keeper). Owners can do everything. Changes apply straight away, even if
+the person is signed in. Routes enforce every permission; the catalog is in `app/Support/Permissions.php`,
+and `PermissionTest` fails if an admin route is left without a `perm:` check.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Nobody can change their own access or grant a permission they don't hold. Only owners can touch
+owners or make someone an owner. `php artisan salon:admin` always creates an active owner, so it is
+also the way back in if every owner is locked out.
 
-## Laravel Sponsors
+### Offers
+**Admin → Offers** sets a discount (a percentage or an amount) for all services or chosen ones, between
+two dates. An offer applies when the **visit** falls on those dates, whenever the booking is made, and
+the customer gets the bigger offer if two overlap. The discount is saved on the booking
+(`discount_amount`, `offer_name`), so changing or deleting an offer never changes a booking already made.
+Moving a booking to another date or service re-checks offers; changing only the time or stylist keeps
+the price. Pricing lives in `App\Services\OfferPricing`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Cashier station
+Open to admin users with the **Take payments** permission. To use it on a front-desk device without
+an admin login, set a station PIN in **Admin → Settings → Cashier station**. Anyone with the PIN can
+use the station, whatever their permissions.
 
-### Premium Partners
+### Stylist logins
+Add staff in **Admin → Staff**, then use **Login** on their row to set a username and password.
+The **QR** button prints a station QR that opens the walk-in form for that stylist. **Portal
+permissions** on the staff form turn off walk-ins, phone bookings or extras for that person.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Production checklist
 
-## Contributing
+- `.env`: `APP_ENV=production`, `APP_DEBUG=false`, correct `APP_URL` (https).
+- Serve over **HTTPS** — browsers only allow camera QR scanning on secure origins.
+- `php artisan config:cache && php artisan route:cache && php artisan view:cache`
+- Back up the database regularly.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Booking rules (Admin → Settings)
 
-## Code of Conduct
+- **Book up to N days ahead**, **minimum notice**, **online cancellation cut-off**
+- **Time slot spacing**: match service length, or every 15/30/60 minutes
+- **Auto-confirm** online bookings, or keep them pending for review
+- Opening hours and closure dates: **Admin → Opening hours**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+All bookings (online, phone, walk-in) are re-validated on the server against live availability under a lock,
+so a slot can't be double-booked.
 
-## Security Vulnerabilities
+## Tests
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test
+```

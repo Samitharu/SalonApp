@@ -54,8 +54,15 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            // Errors are always copied to the system_logs table (Admin → System log).
+            'channels' => array_values(array_unique(array_merge(explode(',', (string) env('LOG_STACK', 'single')), ['database']))),
             'ignore_exceptions' => false,
+        ],
+
+        'database' => [
+            'driver' => 'monolog',
+            'handler' => App\Logging\DatabaseLogHandler::class,
+            'level' => env('LOG_DATABASE_LEVEL', 'error'),
         ],
 
         'single' => [

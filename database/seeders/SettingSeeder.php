@@ -3,27 +3,32 @@
 namespace Database\Seeders;
 
 use App\Models\Setting;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class SettingSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Defaults only — existing values are never overwritten.
      */
     public function run(): void
     {
-        $data = [
-        ['key' => 'salon_name', 'value' => 'Negombo Saloon'],
-        ['key' => 'salon_phone', 'value' => '+94 77 000 0000'],
-        ['key' => 'salon_address', 'value' => 'Negombo, Sri Lanka'],
-        ['key' => 'slot_interval_minutes', 'value' => '15'], // common real systems use 15 mins
-        ['key' => 'currency', 'value' => 'LKR'],
-        ['key' => 'max_parallel_bookings', 'value' => '3'],
-        
-    ];
-    foreach ($data as $row) {
-        Setting::updateOrCreate(['key' => $row['key']], ['value' => $row['value']]);
-    }
+        $defaults = [
+            'salon_name'            => 'Negombo Saloon',
+            'salon_tagline'         => 'Hair, skin and nail care by people who love what they do.',
+            'salon_phone'           => '+94 77 000 0000',
+            'salon_address'         => 'Negombo, Sri Lanka',
+            'currency'              => 'LKR',
+            'max_parallel_bookings' => '3',
+            'max_advance_days'      => '90',
+            'min_notice_minutes'    => '30',
+            'cancellation_hours'    => '2',
+            'slot_step'             => '0',
+            'auto_confirm'          => '0',
+            'booking_policy'        => 'Please arrive 5 minutes early. Bookings can be cancelled online up to 2 hours before the appointment.',
+        ];
+
+        foreach ($defaults as $key => $value) {
+            Setting::firstOrCreate(['key' => $key], ['value' => $value]);
+        }
     }
 }

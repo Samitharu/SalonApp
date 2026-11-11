@@ -56,6 +56,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | When the site sits behind HTTPS tunnels or proxies (ngrok, a load
+    | balancer, Cloudflare), trust their X-Forwarded-* headers so links are
+    | built as https://. "*" trusts any proxy; or list IPs, comma-separated.
+    | Leave empty when visitors connect to this server directly.
+    |
+    */
+
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
@@ -65,7 +79,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // The salon's local time: opening hours, "today", past-slot checks and
+    // all stored timestamps use it. Sri Lanka has no daylight saving.
+    'timezone' => env('APP_TIMEZONE', 'Asia/Colombo'),
 
     /*
     |--------------------------------------------------------------------------
